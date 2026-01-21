@@ -1,32 +1,37 @@
-# Visual Archive Retriever (AI Art Curator)
+# Visual Archive Explorer 🔎
 
-A visual similarity search engine that allows users to retrieve artworks from a digital archive using semantic image analysis.
+**A Semantic Visual Search Engine for Digital Art Discovery**
 
-## Features
-* **Visual Query:** Upload an image to find stylistically similar works.
-* **AI-Powered:** Uses OpenAI's **CLIP** model for vector embeddings.
-* **High Performance:** Uses **FAISS** for millisecond-speed retrieval.
-* **Interactive Chat:** A conversational agent that acts as an Art Curator.
+This tool implements a **content-based image retrieval (CBIR)** system designed to help users navigate vast digital archives. Instead of relying on text keywords, the system uses **Computer Vision** to understand the stylistic and semantic content of an image, allowing for a "visual-to-visual" search experience.
 
-## Architecture
-1.  **Stage 1 (Offline):** `archive_builder.py` scans images, generates vectors, and builds a FAISS index.
-2.  **Stage 2 (Online):** `run_chatbot.py` takes user input, vectorizes it, and queries the index.
+### 🚀 Key Features
+* **Visual Querying:** Upload an image to find stylistically similar artworks, sketches, or photographs.
+* **Zero-Shot Learning:** Powered by **OpenAI's CLIP** model, enabling the system to understand image concepts without manual labeling.
+* **Fast Indexing:** Utilizes **FAISS** for millisecond-latency retrieval from large datasets.
+* **Interactive Agent:** Includes a conversational AI interface that acts as a digital historian, analyzing and explaining visual connections.
 
-## Installation
-1.  Install dependencies:
+### 🛠️ Technical Architecture
+The system follows a two-stage retrieval pipeline:
+1.  **Offline Vectorization:** The `archive_builder.py` script scans the dataset and converts images into 512-dimensional vector embeddings.
+2.  **Real-Time Inference:** The `run_chatbot.py` application computes Cosine Similarity between the user's input and the stored archive index.
+
+---
+
+### 📋 How to Run
+1.  **Install Requirements:**
     ```bash
     pip install -r requirements.txt
     ```
-2.  Download the dataset (500 images):
+2.  **Generate Dataset:**
     ```bash
     python download_images.py
     ```
-3.  Build the database:
+    *(Downloads 500 sample images)*
+3.  **Build Index:**
     ```bash
     python archive_builder.py
     ```
-
-## Usage
-Run the visual interface:
-```bash
-streamlit run run_chatbot.py
+4.  **Launch Interface:**
+    ```bash
+    streamlit run run_chatbot.py
+    ```
