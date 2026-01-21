@@ -12,7 +12,7 @@ INDEX_FOLDER = "index_db"
 class VisualArchiveBot(ChatbotBase):
     def __init__(self):
         # 1. Strict Inheritance: Call the parent constructor
-        super().__init__(name="Art Curator AI")
+        super().__init__(name="Visual Archive Explorer")
         
         # 2. Load the Visual Brain (CLIP + FAISS)
         print("Loading Visual Search Engine...")
