@@ -4,6 +4,7 @@ import json
 import torch
 import os
 import random
+import numpy as np
 from transformers import CLIPProcessor, CLIPModel
 
 # Constants
@@ -18,7 +19,8 @@ class VisualArchiveBot(ChatbotBase):
         print("Loading Visual Search Engine...")
         self.is_ready = False
         try:
-            self.model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+            # FIX: Use safetensors=False to match the builder script
+            self.model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32", use_safetensors=False)
             self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
             
             # Load Index if it exists
@@ -50,7 +52,17 @@ class VisualArchiveBot(ChatbotBase):
             # 1. See the Image (CLIP Vectorization)
             inputs = self.processor(images=query_image, return_tensors="pt", padding=True)
             with torch.no_grad():
+                # Get features safely
                 query_vector = self.model.get_image_features(**inputs)
+                
+                # --- THE SAFETY FIX ---
+                # If it returns a "Box" instead of numbers, open the box.
+                if hasattr(query_vector, 'image_embeds'):
+                    query_vector = query_vector.image_embeds
+                elif hasattr(query_vector, 'pooler_output'):
+                    query_vector = query_vector.pooler_output
+                
+                # Now we definitely have a Tensor
                 query_vector = query_vector / query_vector.norm(p=2, dim=-1, keepdim=True)
                 query_np = query_vector.numpy()
 
@@ -74,7 +86,6 @@ class VisualArchiveBot(ChatbotBase):
                 detected_styles.append(data.get('tag'))
 
             # 3. Formulate an "Opinion"
-            # Find the most common style in the top results
             dominant_style = max(set(detected_styles), key=detected_styles.count) if detected_styles else "Unknown"
             
             return {
@@ -99,7 +110,7 @@ class VisualArchiveBot(ChatbotBase):
         if not matches:
             return "I couldn't find anything similar in the archive. It's truly unique!"
         
-        # Conversational Logic (The 'Personality')
+        # Conversational Logic
         top_match = matches[0]
         phrases = [
             f"This piece reminds me of the **{style}** style.",
